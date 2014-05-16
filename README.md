@@ -7,7 +7,7 @@ circles app of open app ecosystem
 ### install
 
 ```bash
-git clone https://github.com/ahdinosaur/circles.open.app
+git clone https://github.com/simontegg/circles.open.app
 cd circles.open.app
 npm install
 ```
