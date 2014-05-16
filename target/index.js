@@ -1,5 +1,5 @@
 (function() {
-  var app, db, express, jsonld, levelgraph, test;
+  var app, db, express, initData, jsonld, levelgraph, test;
 
   express = require("express");
 
@@ -11,9 +11,12 @@
 
   db = jsonld(levelgraph("../db"));
 
+  initData = require("./initData.js");
+
   test = 0;
 
   app.get("/groups", function(req, res, next) {
+    console.log(initData);
     res.json(200, {
       name: "GET /groups"
     });

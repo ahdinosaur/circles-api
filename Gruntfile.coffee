@@ -16,13 +16,22 @@ module.exports = (grunt) ->
         script: 'server.js'
     watch:
       files: ['Gruntfile.coffee', 'src/**/*.coffee']
-      tasks: ['coffeelint', 'coffee', 'nodemon']
-      options: 
-        livereload: true
+      tasks: ['coffeelint', 'coffee']
+      server: 
+        files: ['.rebooted']
+        options:
+          livereload: true
+
+
 
   grunt.loadNpmTasks 'grunt-coffeelint'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-nodemon'
 
-  grunt.registerTask 'default', ['watch']
+  grunt.registerTask 'server', 'start', ->
+    grunt.log.writeln 'Started a web server on port 5000'
+    require('./server.js').listen(5000)
+    return
+
+  grunt.registerTask 'default', ['watch', 'nodemon']

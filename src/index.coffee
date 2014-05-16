@@ -4,17 +4,22 @@ jsonld = require("levelgraph-jsonld")
 app = express()
 db = jsonld(levelgraph("../db"))
 
+initData = require "./initData.js"
+
 test = 0
 
 app.get "/groups", (req, res, next) ->
-  # use db.search
+  
+  #db.search
+  console.log initData
+
   res.json 200,
     name: "GET /groups"
   return
 
 app.post "/groups", (req, res, next) ->
   body = req.body
-  # use db.jsonld.put(body, function (err, obj) {})
+  #db.jsonld.put(body, function (err, obj) {})
   res.json 200,
     name: "POST /groups"
   return
