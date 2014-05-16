@@ -1,7 +1,7 @@
 var request = require('supertest');
 var expect = require('chai').expect;
 
-var app = require('../')
+var app = require('../target/index.js')
 
 describe("GET /groups", function () {
   it("should GET /groups", function (done) { 
