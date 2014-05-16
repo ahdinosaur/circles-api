@@ -1,5 +1,5 @@
 (function() {
-  var app, db, express, initData, jsonld, levelgraph, test;
+  var app, db, express, initData, jsonld, levelgraph;
 
   express = require("express");
 
@@ -13,10 +13,15 @@
 
   initData = require("./initData.js");
 
-  test = 0;
-
   app.get("/groups", function(req, res, next) {
-    console.log(initData);
+    db.search([
+      {
+        subject: db.v('group')
+      }
+    ], function(err, solution) {
+      console.log('err', err);
+      return console.log('solution', solution);
+    });
     res.json(200, {
       name: "GET /groups"
     });

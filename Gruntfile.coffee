@@ -1,4 +1,7 @@
 module.exports = (grunt) ->
+  
+  require('load-grunt-tasks')(grunt)
+
   grunt.initConfig
     coffee:
       compile:
@@ -11,9 +14,22 @@ module.exports = (grunt) ->
         ]
     coffeelint:
       app: 'src/**/*.coffee'
+    concurrent:
+      dev:
+        options:
+          logConcurrentOutput: true
+        tasks: ['watch', 'nodemon:dev']
     nodemon:
-      dev: 
+      dev:
         script: 'server.js'
+        options:
+          args: ['dev']
+          nodeArgs: ['--debug']
+          cwd: __dirname
+          ext: 'js,coffe'
+          ignore: ['node_modules/**']
+          delay: 1000
+          legacyWatch: true
     watch:
       files: ['Gruntfile.coffee', 'src/**/*.coffee']
       tasks: ['coffeelint', 'coffee']
@@ -23,15 +39,5 @@ module.exports = (grunt) ->
           livereload: true
 
 
-
-  grunt.loadNpmTasks 'grunt-coffeelint'
-  grunt.loadNpmTasks 'grunt-contrib-coffee'
-  grunt.loadNpmTasks 'grunt-contrib-watch'
-  grunt.loadNpmTasks 'grunt-nodemon'
-
-  grunt.registerTask 'server', 'start', ->
-    grunt.log.writeln 'Started a web server on port 5000'
-    require('./server.js').listen(5000)
-    return
-
-  grunt.registerTask 'default', ['watch', 'nodemon']
+  grunt.registerTask 'default', ['concurrent:dev']
+  grunt.registerTask 'dev', ['build:debug', 'concurrent:dev']

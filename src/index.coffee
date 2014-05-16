@@ -6,12 +6,12 @@ db = jsonld(levelgraph("../db"))
 
 initData = require "./initData.js"
 
-test = 0
 
 app.get "/groups", (req, res, next) ->
   
-  #db.search
-  console.log initData
+  db.search [{subject: db.v('group')}], (err, solution) ->
+    console.log 'err', err
+    console.log 'solution', solution
 
   res.json 200,
     name: "GET /groups"
