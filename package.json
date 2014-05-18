@@ -4,9 +4,11 @@
   "description": "circles app of open app ecosystem",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "mocha --recursive test",
-    "develop": "nodemon server"
+    "build": "coffee -o lib -c src",
+    "watch": "coffee -o lib -cw src",
+    "start": "npm run build && node server.js", 
+    "test": "mocha --compilers coffee:coffee-script/register --recursive test",
+    "develop": "npm run build && (nodemon server & npm run watch)"
   },
   "repository": {
     "type": "git",
