@@ -13,6 +13,8 @@ app.get "/groups", (req, res, next) ->
     console.log 'err', err
     console.log 'solution', solution
 
+    console.log 'initData', initData
+
   res.json 200,
     name: "GET /groups"
   return
