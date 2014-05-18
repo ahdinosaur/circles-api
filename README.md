@@ -15,8 +15,15 @@ npm install
 ### run
 
 ```bash
-grunt
+node .
 ```
+
+### develop
+
+```bash
+npm run develop
+```
+
 
 ### test
 

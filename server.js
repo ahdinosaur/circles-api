@@ -1,5 +1,5 @@
-var app = require('./target/index.js');
+var app = require('./lib/index.js');
+
+
 
 app.listen(5000);
-
-module.exports = app
