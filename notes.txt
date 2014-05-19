@@ -1,0 +1,6 @@
+
+
+### for db.search [query]
+
+query 
+	predicate: must be expanded form and defined in context as hash with @id and @type

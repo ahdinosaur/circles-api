@@ -18,12 +18,16 @@ data = [{
       },
       "accounts": "foaf:account",
       "accountName": "foaf:accountName",
+      "phyle": 
+        {
+          "@id": "relations:phyle"
+          "@type": "relations:phyle"
+        }
       "createdAt":
         {
         "@id": "relations:createdat",
         "@type": "schema:DateTime"
         }
-      "group": "foaf:Group",
       "image": "foaf:Image",
       "@language": "en",
       "members":
@@ -36,9 +40,9 @@ data = [{
       "subgroups": "relations:subgroup",
       "supergroups": "relations:supergroups"
     }
-  "@id": "circles:loomiocommunity"
-  "@type": "group"
-  "name": "Loomio Community"
+  "@id": "circles:loomiocommunity",
+  "phyle": "group",
+  "name": "Loomio Community",
   "createdAt": "2011-12-02T13:13",
   "description": "A public group for the whole community of Loomio users
    and supporters to get together, discuss and collaborate.

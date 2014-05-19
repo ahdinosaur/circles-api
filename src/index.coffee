@@ -13,21 +13,45 @@ app.get "/groups", (req, res, next) ->
   #   console.log 'deleted '
 
 
-  db.search [{subject: db.v('subj'), predicate: '@type', object: 'group'}], (err, solution) ->
 
-    console.log 'err', err
+  # query = 
+  #   subject: db.v('subj')
+  #   predicate: 'http://relations.app.enspiral.com/createdat'
+  #   object: '2011-12-02T13:13'
+
+  query =
+    subject: db.v("subj")
+    predicate: "http://relations.app.enspiral.com/phyle"
+    object: "group"
+
+  console.log query
+
+  db.search [query], (err, solution) ->
     console.log 'solution', solution
-
+    # add fake data if none present
     # if solution.length is 0
-    #   db.jsonld.put initData[0], (err, obj) ->
-    #     console.log 'err', err
-    #     console.log 'obj', obj
+    #   initData.forEach (d,i) ->
 
+    #     console.log d, i
 
-
-  res.json 200,
-    name: "GET /groups"
-  return
+    #     db.jsonld.put d, (err, obj) ->
+    #       if err
+    #         res.json 304,
+    #           data: []
+    #           message: err
+    #       if i is initData.length-1
+    #         res.json 200,
+    #           data: initData
+    #           message: 'fake data added'
+    if err
+      res.json 304,
+        data: []
+        message: err
+    else
+      res.json 200,
+        data: solution
+        message: 'ok' 
+    return
 
 app.post "/groups", (req, res, next) ->
   body = req.body
