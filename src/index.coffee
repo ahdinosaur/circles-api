@@ -5,15 +5,22 @@ app = express()
 db = jsonld(levelgraph("../db"))
 
 initData = require "./initData.js"
-
+app.use require("body-parser")()
 
 app.get "/groups", (req, res, next) ->
-  
-  db.search [{subject: db.v('group')}], (err, solution) ->
-    console.log 'err', err
-    console.log 'solution', solution
 
-    console.log 'initData', initData
+
+
+  db.search [{subject: db.v('subj'), predicate: 'http://relations.app.enspiral.com/createdat', object: '2011-12-02T13:13'}], (err, solution) ->
+    console.log 'solution', solution
+    console.log 'err', err
+
+    # if solution.length is 0
+    #   db.jsonld.put initData[0], (err, obj) ->
+    #     console.log 'err', err
+    #     console.log 'obj', obj
+
+
 
   res.json 200,
     name: "GET /groups"
