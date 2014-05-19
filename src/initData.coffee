@@ -37,6 +37,7 @@ data = [{
       "supergroups": "relations:supergroups"
     }
   "@id": "circles:loomiocommunity"
+  "@type": "group"
   "name": "Loomio Community"
   "createdAt": "2011-12-02T13:13",
   "description": "A public group for the whole community of Loomio users

@@ -9,11 +9,14 @@ app.use require("body-parser")()
 
 app.get "/groups", (req, res, next) ->
 
+  # db.jsonld.del 'http://circles.app.enspiral.com/loomiocommunity', (err) ->
+  #   console.log 'deleted '
 
 
-  db.search [{subject: db.v('subj'), predicate: 'http://relations.app.enspiral.com/createdat', object: '2011-12-02T13:13'}], (err, solution) ->
-    console.log 'solution', solution
+  db.search [{subject: db.v('subj'), predicate: '@type', object: 'group'}], (err, solution) ->
+
     console.log 'err', err
+    console.log 'solution', solution
 
     # if solution.length is 0
     #   db.jsonld.put initData[0], (err, obj) ->
@@ -50,6 +53,9 @@ app.put "/groups/:id", (req, res, next) ->
 
 app.delete "/groups/:id", (req, res, next) ->
   id = req.params.id
+
+  db.jsonld.del id, (err) ->
+    console.log 'deleted ' + id
 
   res.json 200,
     name: "DELETE /groups/" + id
