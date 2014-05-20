@@ -59,6 +59,10 @@ app.get "/groups/:id", (req, res, next) ->
   getGroup(res, id, initData[0]["@context"])
   return
 
+app.get "/groups/:id/members", (req, res, next) ->
+  id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
+  getMembers(res, id, initData[0]["@context"])
+
 app.put "/groups/:id", (req, res, next) ->
   id = req.params.id
   body = req.params.body
@@ -82,6 +86,12 @@ getGroup = (res, id, context) ->
     res.json 200,
       data: obj
       message: 'ok' 
+
+getMembers = (res, id, context) ->
+  db.jsonld.get id, {'@context': context}, (err, obj) ->
+    res.json 200,
+      data: obj['relations:members']
+      message: 'ok'   
 
 
 
