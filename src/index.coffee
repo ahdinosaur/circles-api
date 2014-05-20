@@ -6,6 +6,9 @@ app = express()
 db = jsonld(levelgraph("../db"))
 
 initData = require "./initData.js"
+context = require "./context.js"
+
+
 app.use require("body-parser")()
 
 
@@ -61,7 +64,7 @@ app.delete "/groups/:id", (req, res, next) ->
 
 app.get "/groups/:id/members", (req, res, next) ->
   id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
-  getMembers(res, id, initData[0]["@context"])
+  getMembers(res, id, context)
 
 
 simpleQuery = (res, queries, queryObj) ->
@@ -120,8 +123,6 @@ deleteTestData = (res) ->
       db.jsonld.del d["@id"], (error) ->
         if i is result.length-1
           res.json 200, {data:[], message: "data base deleted"}
-
-
 
 
 
