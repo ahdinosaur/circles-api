@@ -13,17 +13,10 @@ app.get "/groups", (req, res, next) ->
   # db.jsonld.del 'http://circles.app.enspiral.com/loomiocommunity', (err) ->
   #   console.log 'deleted '
 
-
-
-  query = 
-    subject: db.v('subj')
-    predicate: 'http://relations.app.enspiral.com/createdat'
-    object: '2011-12-02T13:13'
-
-  # query =
-  #   subject: db.v("subj")
-  #   predicate: "http://relations.app.enspiral.com/phyle"
-  #   object: "group"
+  query =
+    subject: db.v("subj")
+    predicate: "http://relations.app.enspiral.com/phyle"
+    object: "group"
 
   console.log query
 
@@ -46,7 +39,7 @@ app.get "/groups", (req, res, next) ->
     #           message: 'fake data added'
     if err
       res.json 304,
-        data: []
+        data: null
         message: err
     else
       res.json 200,
@@ -62,12 +55,8 @@ app.post "/groups", (req, res, next) ->
   return
 
 app.get "/groups/:id", (req, res, next) ->
-  id = req.params.id
-  if validator.isURL(id)
-    getGroup(res, id, initData[0]["@context"])
-  else
-    id = "http://circles.app.enspiral.com/" + id
-    getGroup(res, id, initData[0]["@context"])
+  id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
+  getGroup(res, id, initData[0]["@context"])
   return
 
 app.put "/groups/:id", (req, res, next) ->
