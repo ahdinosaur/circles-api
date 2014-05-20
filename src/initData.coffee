@@ -52,18 +52,11 @@ data = [{
     [
       {
         "@id": "people:aaronthornton",
-        "name": "Aaron Thornton",
-        "accounts":
-          [
-            {
-              "@id": "loomio",
-              "accountName": "aaronthornton"
-            },
-            {
-              "@id": "cobudget",
-              "accountName": "aaronthornton"
-            }
-          ]
+        "name": "Aaron Thornton"
+      },
+      {
+        "@id": "people:simontegg",
+        "name": "Simon Tegg"
       }
     ]
 }]
