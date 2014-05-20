@@ -18,10 +18,10 @@ data = [{
       },
       "accounts": "foaf:account",
       "accountName": "foaf:accountName",
-      "phyle": 
+      "class": 
         {
-          "@id": "relations:phyle"
-          "@type": "relations:phyle"
+          "@id": "relations:class"
+          "@type": "relations:class"
         }
       "createdAt":
         {
@@ -41,7 +41,7 @@ data = [{
       "supergroups": "relations:supergroups"
     }
   "@id": "circles:loomiocommunity",
-  "phyle": "group",
+  "class": "group",
   "name": "Loomio Community",
   "createdAt": "2011-12-02T13:13",
   "description": "A public group for the whole community of Loomio users
