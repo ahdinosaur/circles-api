@@ -1,6 +1,6 @@
-# circles.open.app
+# Circles
 
-circles app of open app ecosystem
+Groups should only need to be defined in one place. That place is here. Administrators can also define relationships with other circles.
 
 ## how to
 
