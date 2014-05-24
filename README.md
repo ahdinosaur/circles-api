@@ -1,4 +1,6 @@
-# Circles
+# Circles (prototype)
+
+A prototype of the circles open-app.
 
 Groups should only need to be defined in one place. That place is here. Administrators can also define relationships with other circles.
 
@@ -7,8 +9,8 @@ Groups should only need to be defined in one place. That place is here. Administ
 ### install
 
 ```bash
-git clone https://github.com/open-app/circles
-cd circles
+git clone https://github.com/open-app/circles-prototype
+cd circles-prototype
 npm install
 ```
 
