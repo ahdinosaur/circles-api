@@ -13,22 +13,14 @@ app.use require("body-parser")()
 
 
 app.get "/", (req, res, next) ->
- addTestData(res)
-  # deleteTestData(res)
+  #addTestData(res)
+  #deleteTestData(res)
 
 app.get "/groups", (req, res, next) ->
-  baseQuery =
-    subject: db.v("@id")
-    predicate: "http://relations.app.enspiral.com/class"
-    object: "group"
-  queries = [baseQuery]
-
-  if Object.keys(req.query).length is 1
-    simpleQuery(res, queries, req.query)
-  else if Object.keys(req.query).length > 1
+  if Object.keys(req.query).length > 1
     res.json {data: null, message: "GET /groups? only accepts 1 parameter"}
   else
-    searchLevelGraph(res, queries)
+    find(req.query, callback)
 
 app.post "/groups", (req, res, next) ->
   body = req.body
@@ -60,15 +52,20 @@ app.delete "/groups/:id", (req, res, next) ->
     name: "DELETE /groups/" + id
 
 
-
-
 app.get "/groups/:id/members", (req, res, next) ->
   id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
   getMembers(res, id, context)
 
 
-simpleQuery = (res, queries, queryObj) ->
-  console.log 'simpleQuery fired ', queryObj
+find = (params, callback) ->
+
+  baseQuery =
+    subject: db.v("@id")
+    predicate: "http://relations.app.enspiral.com/class"
+    object: "group"
+  queries = [baseQuery]
+
+
   key = Object.keys(queryObj)[0]
   query =
     subject: db.v('@id')

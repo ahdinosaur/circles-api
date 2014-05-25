@@ -1,6 +1,12 @@
 module.exports =
   "@language": "en"
-  
+
+  # aliases
+  id: "@id"
+  type: 
+    "@id": "@type"
+    "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" 
+
   # prefixes
   circles: "http://circles.app.enspiral.com/"
   foaf: "http://xmlns.com/foaf/0.1/"

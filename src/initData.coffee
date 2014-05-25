@@ -1,64 +1,60 @@
-
-data = [{
+data = [
   "@context":
-    {
-      "circles": "http://circles.app.enspiral.com/"
-      "foaf": "http://xmlns.com/foaf/0.1/",
-      "people": "http://people.app.enspiral.com/",
-      "relations": "http://relations.app.enspiral.com/",
-      "schema": "https://schema.org/",
-      "description": "schema:description",
-      "loomio": {
-        "@id": "http://loomio.org",
-        "@type": "foaf:OnlineAccount"
-      },
-      "cobudget": {
-        "@id": "http://cobudget.enspiral.com",
-        "@type": "foaf:OnlineAccount"
-      },
-      "accounts": "foaf:account",
-      "accountName": "foaf:accountName",
-      "class": 
-        {
-          "@id": "relations:class"
-          "@type": "relations:class"
-        }
-      "createdAt":
-        {
-        "@id": "relations:createdat",
-        "@type": "schema:DateTime"
-        }
-      "image": "foaf:Image",
-      "@language": "en",
-      "members":
-        {
-          "@id": "relations:members",
-          "@type": "person"
-        }
-      "name": "foaf:name",
-      "person": "foaf:Person",
-      "subgroups": "relations:subgroup",
-      "supergroups": "relations:supergroups"
-    }
-  "@id": "circles:loomiocommunity",
-  "class": "group",
-  "name": "Loomio Community",
-  "createdAt": "2011-12-02T13:13",
-  "description": "A public group for the whole community of Loomio users
-   and supporters to get together, discuss and collaborate.
-   Find out more about how this community works here:
-   https://www.loomio.org/discussions/5200"
-  "members":
-    [
-      {
-        "@id": "people:aaronthornton",
-        "name": "Aaron Thornton"
-      },
-      {
-        "@id": "people:simontegg",
-        "name": "Simon Tegg"
-      }
-    ]
-}]
+    "@language": "en"
 
+    # aliases
+    id: "@id"
+    type: 
+      "@id": "@type"
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" 
+
+    # prefixes
+    circles: "http://circles.app.enspiral.com/"
+    foaf: "http://xmlns.com/foaf/0.1/"
+    people: "http://people.app.enspiral.com/"
+    relations: "http://relations.app.enspiral.com/"
+    schema: "https://schema.org/"
+    
+    #properties
+    description: "schema:description"
+    group: "foaf:group"
+    image: "foaf:Image"
+    name: "foaf:name"
+    person: "foaf:Person"
+
+    createdAt:
+      "@id": "relations:createdAt"
+      "@type": "schema:DateTime"
+
+    modifiedAt:
+      "@id": "relations:createdAt"
+      "@type": "schema:DateTime"
+    
+    #relations
+    members: 
+      "@id": "relations:members"
+      "@type": "person"
+    subgroups:
+      "@id": "relations:subgroup"
+      "@type": "group"
+    supergroups:
+      "@id": "relations:supergroup"
+      "@type": "group"
+
+  "@id": "circles:loomiocommunity"
+  type: "foaf:group"
+  name: "Loomio Community"
+  createdAt: "2011-12-02T13:13"
+  description: "A public group for the whole community of Loomio users\n   and supporters to get together, discuss and collaborate.\n   Find out more about how this community works here:\n   https://www.loomio.org/discussions/5200"
+  members: [
+    {
+      "@id": "people:aaronthornton"
+      name: "Aaron Thornton"
+    }
+    {
+      "@id": "people:simontegg"
+      name: "Simon Tegg"
+    }
+  ]
+]
 module.exports = data
