@@ -11,6 +11,12 @@ context = require "./context.js"
 
 app.use require("body-parser")()
 
+callback = (err, data, res) ->
+  if err
+    res.json 404, {data: null, message: err}
+  else
+    res.json 200, {data: data, message: 'ok'}
+
 
 app.get "/", (req, res, next) ->
   #addTestData(res)
@@ -18,9 +24,9 @@ app.get "/", (req, res, next) ->
 
 app.get "/groups", (req, res, next) ->
   if Object.keys(req.query).length > 1
-    res.json {data: null, message: "GET /groups? only accepts 1 parameter"}
+    res.json 400, {data: null, message: "GET /groups? only accepts 1 parameter"}
   else
-    find(req.query, callback)
+    find(req.query, callback, res)
 
 app.post "/groups", (req, res, next) ->
   body = req.body
@@ -31,7 +37,7 @@ app.post "/groups", (req, res, next) ->
 
 app.get "/groups/:id", (req, res, next) ->
   id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
-  getGroup(res, id, initData[0]["@context"])
+  #getGroup(res, id, initData[0]["@context"])
   return
 
 app.put "/groups/:id", (req, res, next) ->
