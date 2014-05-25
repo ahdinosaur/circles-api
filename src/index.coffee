@@ -63,7 +63,7 @@ app.get "/groups/:id/members", (req, res, next) ->
   getMembers(res, id, context)
 
 
-find = (params, callback) ->
+find = (params, callback, res) ->
 
   baseQuery =
     subject: db.v("@id")
@@ -72,7 +72,7 @@ find = (params, callback) ->
   queries = [baseQuery]
 
 
-  key = Object.keys(queryObj)[0]
+  key = Object.keys(params)[0]
   query =
     subject: db.v('@id')
     predicate: 'http://relations.app.enspiral.com/members'
