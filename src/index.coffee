@@ -2,6 +2,8 @@ express = require "express"
 levelgraph = require "levelgraph"
 jsonld = require "levelgraph-jsonld"
 validator = require "validator"
+async = require "async"
+_ = require "lodash"
 app = express()
 db = jsonld(levelgraph("../db"))
 
@@ -19,14 +21,29 @@ callback = (err, data, res) ->
 
 
 app.get "/", (req, res, next) ->
-  #addTestData(res)
+  addTestData(res)
   #deleteTestData(res)
 
 app.get "/groups", (req, res, next) ->
-  if Object.keys(req.query).length > 1
+  query = req.query
+  if Object.keys(query).length is 0
+    defaultQuery =
+      subject: db.v('@id')
+      predicate: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      object: "foaf:group"
+    find(defaultQuery, res, callback)
+  else if Object.keys(params).length > 1
     res.json 400, {data: null, message: "GET /groups? only accepts 1 parameter"}
   else
-    find(req.query, res, callback)
+    async.waterfall([
+      (callback) ->
+        parseQuery(query, callback)
+      ],
+      (err, result) ->
+        console.log 'result', result
+
+      )
+
 
 app.post "/groups", (req, res, next) ->
   body = req.body
@@ -37,7 +54,7 @@ app.post "/groups", (req, res, next) ->
 
 app.get "/groups/:id", (req, res, next) ->
   id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
-  #getGroup(res, id, initData[0]["@context"])
+  get(id, res, callback)
   return
 
 app.put "/groups/:id", (req, res, next) ->
@@ -62,26 +79,40 @@ app.get "/groups/:id/members", (req, res, next) ->
   id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
   getMembers(res, id, context)
 
+expandIRI = (term, context, callback) ->
+  if context[term]?
+    if validator.isURL(context[term])
+      callback(null, context[term])
+    else
+      if context[term].indexOf ':' > -1
+        shorthand = context[term].split(':')
+        async.waterfall([
+          (callback) ->
+            expandIRI(shorthand[0], context, callback)
+          ],
+          (err, prefix) ->
+            expanded = prefix + shorthand[1]
+            callback(null, expanded)
 
-find = (params, res, callback) ->
-  baseQuery =
-    subject: db.v("@id")
-    predicate: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-    object: "foaf:group"
-  queries = [baseQuery]
+          )
+      else
+        ##TODO
+  else
+    #TODO
 
-  db.search queries, (error, result) ->
+parseQuery = (query, context, res, callback) ->
+
+
+
+
+find = (query, res, callback) ->
+  console.log query
+  db.search query, (error, groups) ->
     if error
       callback(error)
     else
-      callback(null, result, res)
+      callback(null, groups, res)
 
-  # key = Object.keys(params)[0]
-  # query =
-  #   subject: db.v('@id')
-  #   predicate: 'http://relations.app.enspiral.com/members'
-  #   object: queryObj[key]
-  # queries.push query
 
 
 complexQuery = (res, queries, queryObj) ->
@@ -98,11 +129,12 @@ searchLevelGraph = (res, queries) ->
       res.json 200, {data: result, message: 'ok'}
     return
 
-getGroup = (res, id, context) ->
-  db.jsonld.get id, {'@context': context}, (err, obj) ->
-    res.json 200,
-      data: obj
-      message: 'ok' 
+get = (id, res, callback) ->
+  db.jsonld.get id, {'@context': context}, (error, result) ->
+    if error
+      callback(error, null, res)
+    else
+      callback(null, result, res)
 
 getMembers = (res, id, context) ->
   db.jsonld.get id, {'@context': context}, (err, obj) ->

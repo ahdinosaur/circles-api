@@ -1,8 +1,5 @@
 module.exports =
   "@language": "en"
-
-  # aliases
-  id: "@id"
   type: 
     "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
     "@type":  "http://tools.ietf.org/html/rfc3987"
