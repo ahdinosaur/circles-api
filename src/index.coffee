@@ -26,7 +26,7 @@ app.get "/groups", (req, res, next) ->
   if Object.keys(req.query).length > 1
     res.json 400, {data: null, message: "GET /groups? only accepts 1 parameter"}
   else
-    find(req.query, callback, res)
+    find(req.query, res, callback)
 
 app.post "/groups", (req, res, next) ->
   body = req.body
@@ -63,24 +63,26 @@ app.get "/groups/:id/members", (req, res, next) ->
   getMembers(res, id, context)
 
 
-find = (params, callback, res) ->
-
+find = (params, res, callback) ->
   baseQuery =
     subject: db.v("@id")
-    predicate: "http://relations.app.enspiral.com/class"
-    object: "group"
+    predicate: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+    object: "foaf:group"
   queries = [baseQuery]
 
+  db.search queries, (error, result) ->
+    if error
+      callback(error)
+    else
+      callback(null, result, res)
 
-  key = Object.keys(params)[0]
-  query =
-    subject: db.v('@id')
-    predicate: 'http://relations.app.enspiral.com/members'
-    object: queryObj[key]
-  queries.push query
+  # key = Object.keys(params)[0]
+  # query =
+  #   subject: db.v('@id')
+  #   predicate: 'http://relations.app.enspiral.com/members'
+  #   object: queryObj[key]
+  # queries.push query
 
-  console.log 'queries', queries
-  searchLevelGraph(res, queries)
 
 complexQuery = (res, queries, queryObj) ->
 
@@ -117,15 +119,20 @@ addTestData = (res) ->
           message: 'test data added'
 
 deleteTestData = (res) ->
-  query =
-    subject: db.v("@id")
-    predicate: "http://relations.app.enspiral.com/class"
-    object: "group"
-  db.search [query], (error, result) ->
-    result.forEach (d,i) ->
-      db.jsonld.del d["@id"], (error) ->
-        if i is result.length-1
-          res.json 200, {data:[], message: "data base deleted"}
+
+  db.jsonld.del "http://circles.app.enspiral.com/loomiocommunity", (error) ->
+    res.json 200, {data:[], message: "data base deleted"}
+
+
+  # query =
+  #   subject: db.v("@id")
+  #   predicate: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+  #   object: "foaf:group"
+  # db.search [query], (error, result) ->
+  #   result.forEach (d,i) ->
+  #     db.jsonld.del d["@id"], (error) ->
+  #       if i is result.length-1
+  #         res.json 200, {data:[], message: "data base deleted"}
 
 
 

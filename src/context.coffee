@@ -4,8 +4,8 @@ module.exports =
   # aliases
   id: "@id"
   type: 
-    "@id": "@type"
-    "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" 
+    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+    "@type":  "http://tools.ietf.org/html/rfc3987"
 
   # prefixes
   circles: "http://circles.app.enspiral.com/"
