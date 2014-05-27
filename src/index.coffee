@@ -8,9 +8,8 @@ Promise = require "bluebird"
 jsonld = Promise.promisifyAll(require("levelgraph-jsonld"))
 jsonldUtil = require("jsonld")
 
-expand = Promise.promisify(jsonldUtil.expand)
 
-_ = require "lodash"
+_ = Promise.promisifyAll(require("lodash"))
 app = express()
 db = jsonld(levelgraph("../db"))
 
@@ -32,16 +31,31 @@ find = (query, callback) ->
       callback(null, groups)
   return
 
-addContext = (doc, context, callback) ->
+addContext = (key, value, context, callback) ->
+  doc = {}
+  doc[key] = 'test'
+  doc[value] = 'test'
   doc['@context'] = context
   console.log 'doc', doc
   callback(null, doc)
   return
 
+pair = (obj, callback) ->
+  key = Object.keys(obj)[0]
+  value = obj[key]
+  terms = [key, value]
+  callback(null, terms)
+
+expandQuery = (query, context, callback) ->
+  pair(query)
+    .map((term) -> console.log 'term', term)
 
 
+pair = Promise.promisify(pair)
+expand = Promise.promisify(jsonldUtil.expand)
 find = Promise.promisify find
 addContext = Promise.promisify addContext
+
 
 
 app.get "/", (req, res, next) ->
@@ -50,7 +64,8 @@ app.get "/", (req, res, next) ->
 
 app.get "/groups", (req, res, next) ->
   query = req.query
-  if Object.keys(query).length is 0
+  keys = Object.keys(query)
+  if keys.length is 0
     defaultQuery =
       subject: db.v('@id')
       predicate: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -60,18 +75,15 @@ app.get "/groups", (req, res, next) ->
       .then((groups) ->
         res.json 200, groups)
     return
-  else if Object.keys(query).length > 1
+  else if keys.length > 1
     res.json 400, "GET /groups? only accepts 1 parameter"
     return
   else
-    addContext(query, context)
-      .then(expand)
-      # .then (doc) -> jsonldUtil.expand(doc, (err, expanded) ->
-      #   console.log err
-      #   console.log expanded
+    expandQuery(query, context)
 
-      #   )
-      .then((expanded) -> console.log(JSON.stringify(expanded)))
+    # addContext(keys[0], query[keys[0]], context)
+    #   .then(expand)
+    #   .then((expanded) -> console.log(JSON.stringify(expanded)))
 
 
 app.post "/groups", (req, res, next) ->

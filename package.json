@@ -34,7 +34,8 @@
   },
   "devDependencies": {
     "chai": "~1.9.1",
-    "load-grunt-tasks": "^0.4.0",
+    "coffee-script": "^1.7.1",
+    "level-test": "^1.6.3",
     "mocha": "~1.18.2",
     "nodemon": "~1.0.19",
     "supertest": "^0.13.0",

@@ -7,7 +7,9 @@ module.exports =
   # prefixes
   circles: "http://circles.app.enspiral.com/"
   foaf: "http://xmlns.com/foaf/0.1/"
-  people: "http://people.app.enspiral.com/"
+  people: 
+    "@id": "http://people.app.enspiral.com/"
+    "@type": "foaf:Person"
   relations: "http://relations.app.enspiral.com/"
   schema: "https://schema.org/"
   
@@ -30,6 +32,7 @@ module.exports =
   members: 
     "@id": "relations:members"
     "@type": "person"
+    "defaultPrefix": "people"
   subgroups:
     "@id": "relations:subgroup"
     "@type": "group"
