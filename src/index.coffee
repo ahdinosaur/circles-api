@@ -1,8 +1,15 @@
 express = require "express"
 levelgraph = require "levelgraph"
-jsonld = require "levelgraph-jsonld"
+
 validator = require "validator"
-async = require "async"
+Promise = require "bluebird"
+
+
+jsonld = Promise.promisifyAll(require("levelgraph-jsonld"))
+jsonldUtil = require("jsonld")
+
+expand = Promise.promisify(jsonldUtil.expand)
+
 _ = require "lodash"
 app = express()
 db = jsonld(levelgraph("../db"))
@@ -13,11 +20,28 @@ context = require "./context.js"
 
 app.use require("body-parser")()
 
-callback = (err, data, res) ->
-  if err
-    res.json 404, {data: null, message: err}
-  else
-    res.json 200, {data: data, message: 'ok'}
+
+
+
+find = (query, callback) ->
+  console.log query
+  db.search query, (error, groups) ->
+    if error
+      callback(error)
+    else
+      callback(null, groups)
+  return
+
+addContext = (doc, context, callback) ->
+  doc['@context'] = context
+  console.log 'doc', doc
+  callback(null, doc)
+  return
+
+
+
+find = Promise.promisify find
+addContext = Promise.promisify addContext
 
 
 app.get "/", (req, res, next) ->
@@ -31,18 +55,23 @@ app.get "/groups", (req, res, next) ->
       subject: db.v('@id')
       predicate: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
       object: "foaf:group"
-    find(defaultQuery, res, callback)
-  else if Object.keys(params).length > 1
-    res.json 400, {data: null, message: "GET /groups? only accepts 1 parameter"}
-  else
-    async.waterfall([
-      (callback) ->
-        parseQuery(query, callback)
-      ],
-      (err, result) ->
-        console.log 'result', result
 
-      )
+    find(defaultQuery)
+      .then((groups) ->
+        res.json 200, groups)
+    return
+  else if Object.keys(query).length > 1
+    res.json 400, "GET /groups? only accepts 1 parameter"
+    return
+  else
+    addContext(query, context)
+      .then(expand)
+      # .then (doc) -> jsonldUtil.expand(doc, (err, expanded) ->
+      #   console.log err
+      #   console.log expanded
+
+      #   )
+      .then((expanded) -> console.log(JSON.stringify(expanded)))
 
 
 app.post "/groups", (req, res, next) ->
@@ -79,39 +108,13 @@ app.get "/groups/:id/members", (req, res, next) ->
   id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
   getMembers(res, id, context)
 
-expandIRI = (term, context, callback) ->
-  if context[term]?
-    if validator.isURL(context[term])
-      callback(null, context[term])
-    else
-      if context[term].indexOf ':' > -1
-        shorthand = context[term].split(':')
-        async.waterfall([
-          (callback) ->
-            expandIRI(shorthand[0], context, callback)
-          ],
-          (err, prefix) ->
-            expanded = prefix + shorthand[1]
-            callback(null, expanded)
-
-          )
-      else
-        ##TODO
-  else
-    #TODO
-
-parseQuery = (query, context, res, callback) ->
 
 
 
 
-find = (query, res, callback) ->
-  console.log query
-  db.search query, (error, groups) ->
-    if error
-      callback(error)
-    else
-      callback(null, groups, res)
+
+
+
 
 
 
