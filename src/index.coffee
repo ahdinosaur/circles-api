@@ -31,14 +31,21 @@ find = (query, callback) ->
       callback(null, groups)
   return
 
-addContext = (key, value, context, callback) ->
+addContext = (term, context, callback) ->
   doc = {}
-  doc[key] = 'test'
-  doc[value] = 'test'
+  doc[term] = term
   doc['@context'] = context
   console.log 'doc', doc
   callback(null, doc)
   return
+
+getKey = (obj, callback) ->
+  #not used
+  key = Object.keys(obj)[0]
+  callback(null, key)
+
+
+
 
 pair = (obj, callback) ->
   key = Object.keys(obj)[0]
@@ -46,15 +53,37 @@ pair = (obj, callback) ->
   terms = [key, value]
   callback(null, terms)
 
+addDefaultPrefix = (terms, context, callback) ->
+  if validator.isURL terms[1]
+    callback null, terms
+  else if terms[1].indexOf(':') is -1
+    prefix = context[terms[0]]["defaultPrefix"]
+    terms[1] = prefix + ":" + terms[1]
+    console.log 'terms11', terms
+    callback null, terms
+  else
+    callback null, terms
+
+
 expandQuery = (query, context, callback) ->
   pair(query)
-    .map((term) -> console.log 'term', term)
+    .then((terms) -> addDefaultPrefix(terms, context))
+    .map((term) -> addContext(term, context))
+    .map((doc) -> expand(doc))
+    .done((expanded) -> 
+      simpleQuery =
+        subject: db.v('@id')
+        predicate: Object.keys(expanded[0][0])[0]
+        object: Object.keys(expanded[1][0])[0]
 
+      callback(null, simpleQuery))
 
-pair = Promise.promisify(pair)
-expand = Promise.promisify(jsonldUtil.expand)
+pair = Promise.promisify pair
+expand = Promise.promisify jsonldUtil.expand
+expandQuery = Promise.promisify expandQuery 
 find = Promise.promisify find
 addContext = Promise.promisify addContext
+addDefaultPrefix = Promise.promisify addDefaultPrefix
 
 
 
@@ -76,10 +105,13 @@ app.get "/groups", (req, res, next) ->
         res.json 200, groups)
     return
   else if keys.length > 1
-    res.json 400, "GET /groups? only accepts 1 parameter"
+    res.json 400, "GET /groups? only accepts 1 parameter pair"
     return
   else
     expandQuery(query, context)
+      .then(find)
+      .then((groups) ->
+        res.json 200, groups)
 
     # addContext(keys[0], query[keys[0]], context)
     #   .then(expand)
