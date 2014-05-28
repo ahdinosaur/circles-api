@@ -117,7 +117,7 @@ app.get "/groups", (req, res, next) ->
         res.json 200, groups)
     return
   else if keys.length > 1
-    res.json 400, "GET /groups? only accepts 1 parameter pair"
+    res.json 400, "GET /groups? only accepts 1 parameter key-value pair"
     return
   else
     expandQuery(query, context)
