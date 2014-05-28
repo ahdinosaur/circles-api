@@ -12,7 +12,9 @@ group =
   shortID: "loomiocommunity"
   name: "Loomio Community"
 
-console.log 'encoded',urlencode(group.id)
+bestGroup =
+  id: "http://circles.app.enspiral.com/bestgroup"
+  name: "Best Group"
 
 request = request('http://localhost:5000')
 
@@ -23,28 +25,6 @@ describe "#groups", ->
 
     return
 
-  # it "should POST /groups", (done) ->
-
-
-  #   request(app)
-  #   .post("/groups")
-  #   .send(group)
-  #   .expect("Content-Type", /json/)
-  #   .expect(201).expect((req) ->
-  #     body = req.body
-  #     console.log 'test req.body', body
-
-  #     expect(body).to.have.property "type", "foaf:gerson"
-  #     for prop of body
-  #       expect(body).to.have.property prop, body[prop]
-  #     return
-  #   )
-  #   .end((err, res) ->
-  #     return done(err) if err
-  #     done()
-  #   )
-
-
   it "should GET /groups", (done) ->
     request
     .get("/groups")
@@ -52,7 +32,6 @@ describe "#groups", ->
     .expect(200)
     .expect((req) ->
       body = req.body
-      expect(body).to.have.length 1
       for prop of body[0]
         expect(body[0]).to.have.property prop, body[0][prop]
       return)
@@ -67,7 +46,6 @@ describe "#groups", ->
     .expect(200)
     .expect((req) ->
       body = req.body
-      console.log 'GET groups/:id body', body
       expect(body).to.have.property "@type", "foaf:group"
       for prop of body
         expect(body).to.have.property prop, body[prop]
@@ -83,7 +61,6 @@ describe "#groups", ->
     .expect(200)
     .expect((req) ->
       body = req.body
-      console.log 'GET groups/:id body', body
       expect(body).to.have.property "@type", "foaf:group"
       for prop of body
         expect(body).to.have.property prop, body[prop]
@@ -99,13 +76,27 @@ describe "#groups", ->
     .expect(200)
     .expect((req) ->
       body = req.body
-      console.log 'GET groups/:id body', body
       expect(body).to.have.property "@type", "foaf:group"
       for prop of body
         expect(body).to.have.property prop, body[prop]
       return)
     .end((err, res) ->
       return done(err)  if err
+      done())
+
+  it "should POST /groups", (done) ->
+    request
+    .post("/groups")
+    .send(bestGroup)
+    .expect("Content-Type", /json/)
+    .expect(201).expect((req) ->
+      ## why is it an array
+      expect(body[0]).to.have.property "@type", "foaf:group"
+      for prop of body
+        expect(body).to.have.property prop, body[prop]
+      return)
+    .end((err, res) ->
+      return done(err) if err
       done())
 
 

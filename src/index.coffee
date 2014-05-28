@@ -10,11 +10,15 @@ jsonldUtil = require("jsonld")
 
 
 _ = Promise.promisifyAll(require("lodash"))
+alias = require "./utils/alias"
+hasType = require "./utils/hasType"
+
+
 app = express()
 db = jsonld(levelgraph("../db"))
 
-initData = require "./initData.js"
-context = require "./context.js"
+initData = require "./initData"
+context = require "./context"
 
 
 app.use require("body-parser")()
@@ -38,6 +42,22 @@ addDefaultPrefix = (terms, context, callback) ->
     callback null, terms
   else
     callback null, terms
+
+
+create = (data, params, callback) ->
+  # alias type to @type
+  data = alias(data, "type", "@type")
+  # ensure @type has "foaf:Person"
+  data = hasType(data, "foaf:group")
+  # alias id to @id
+  data = alias(data, "id", "@id")
+
+  db.jsonld.put data, (err, group) ->
+    # if error, return error
+    return callback(err) if err
+    
+    # return person
+    compact(group, context, callback)
 
 expandQuery = (query, context, callback) ->
   pair(query)
@@ -89,6 +109,8 @@ pair = (obj, callback) ->
 #promisfy methods
 addContext = Promise.promisify addContext
 addDefaultPrefix = Promise.promisify addDefaultPrefix
+compact = Promise.promisify jsonldUtil.compact
+create = Promise.promisify create
 expand = Promise.promisify jsonldUtil.expand
 expandQuery = Promise.promisify expandQuery 
 extractPredicateAndObject = Promise.promisify extractPredicateAndObject
@@ -128,13 +150,15 @@ app.get "/groups", (req, res, next) ->
 
 app.post "/groups", (req, res, next) ->
   body = req.body
-  #db.jsonld.put(body, function (err, obj) {})
-  res.json 200,
-    name: "POST /groups"
+  create(body, null)
+    .then((group) -> 
+      console.log 'group from post', group
+      res.json 201,
+        group)
   return
 
 app.get "/groups/:id", (req, res, next) ->
-  id = urlencode.decode(req.params.id)
+  id = urlencode.decode req.params.id
   console.log 'id', id
   terms = ["group", id]
   addDefaultPrefix(terms, context)
