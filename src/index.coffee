@@ -19,8 +19,44 @@ context = require "./context.js"
 
 app.use require("body-parser")()
 
+#methods
 
+addContext = (term, context, callback) ->
+  doc = {}
+  doc[term] = term
+  doc['@context'] = context
+  console.log 'doc', doc
+  callback(null, doc)
 
+addDefaultPrefix = (terms, context, callback) ->
+  if validator.isURL terms[1]
+    callback null, terms
+  else if terms[1].indexOf(':') is -1
+    prefix = context[terms[0]]["defaultPrefix"]
+    terms[1] = prefix + ":" + terms[1]
+    callback null, terms
+  else
+    callback null, terms
+
+expandQuery = (query, context, callback) ->
+  pair(query)
+    .then((terms) -> addDefaultPrefix(terms, context))
+    .map((term) -> addContext(term, context))
+    .map((doc) -> expand(doc))
+    .then(extractPredicateAndObject)
+    .then((expanded) -> 
+      simpleQuery =
+        subject: db.v('@id')
+        predicate: expanded.predicate
+        object: expanded.object
+
+      callback(null, simpleQuery))
+
+extractPredicateAndObject = (terms, callback) ->
+  expanded = {}
+  exapnded.predicate = Object.keys(terms[0][0])[0]
+  expanded.object = Object.keys(expanded[1][0])[0]
+  callback(null, expanded)
 
 find = (query, callback) ->
   console.log query
@@ -29,23 +65,18 @@ find = (query, callback) ->
       callback(error)
     else
       callback(null, groups)
-  return
 
-addContext = (term, context, callback) ->
-  doc = {}
-  doc[term] = term
-  doc['@context'] = context
-  console.log 'doc', doc
-  callback(null, doc)
-  return
+get = (id, callback) ->
+  db.jsonld.get id, {'@context': context}, (error, group) ->
+    if error
+      callback error
+    else
+      callback null, group
 
+#not used
 getKey = (obj, callback) ->
-  #not used
   key = Object.keys(obj)[0]
   callback(null, key)
-
-
-
 
 pair = (obj, callback) ->
   key = Object.keys(obj)[0]
@@ -53,40 +84,21 @@ pair = (obj, callback) ->
   terms = [key, value]
   callback(null, terms)
 
-addDefaultPrefix = (terms, context, callback) ->
-  if validator.isURL terms[1]
-    callback null, terms
-  else if terms[1].indexOf(':') is -1
-    prefix = context[terms[0]]["defaultPrefix"]
-    terms[1] = prefix + ":" + terms[1]
-    console.log 'terms11', terms
-    callback null, terms
-  else
-    callback null, terms
 
-
-expandQuery = (query, context, callback) ->
-  pair(query)
-    .then((terms) -> addDefaultPrefix(terms, context))
-    .map((term) -> addContext(term, context))
-    .map((doc) -> expand(doc))
-    .done((expanded) -> 
-      simpleQuery =
-        subject: db.v('@id')
-        predicate: Object.keys(expanded[0][0])[0]
-        object: Object.keys(expanded[1][0])[0]
-
-      callback(null, simpleQuery))
-
-pair = Promise.promisify pair
-expand = Promise.promisify jsonldUtil.expand
-expandQuery = Promise.promisify expandQuery 
-find = Promise.promisify find
+#promisfy methods
 addContext = Promise.promisify addContext
 addDefaultPrefix = Promise.promisify addDefaultPrefix
+expand = Promise.promisify jsonldUtil.expand
+expandQuery = Promise.promisify expandQuery 
+extractPredicateAndObject = Promise.promisify extractPredicateAndObject
+find = Promise.promisify find
+get = Promise.promisify get
+getKey = Promise.promisify getKey
+pair = Promise.promisify pair
 
 
 
+#routes
 app.get "/", (req, res, next) ->
   addTestData(res)
   #deleteTestData(res)
@@ -113,11 +125,6 @@ app.get "/groups", (req, res, next) ->
       .then((groups) ->
         res.json 200, groups)
 
-    # addContext(keys[0], query[keys[0]], context)
-    #   .then(expand)
-    #   .then((expanded) -> console.log(JSON.stringify(expanded)))
-
-
 app.post "/groups", (req, res, next) ->
   body = req.body
   #db.jsonld.put(body, function (err, obj) {})
@@ -126,8 +133,14 @@ app.post "/groups", (req, res, next) ->
   return
 
 app.get "/groups/:id", (req, res, next) ->
-  id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
-  get(id, res, callback)
+  terms = ["group", req.params.id]
+  addDefaultPrefix(terms, context)
+    .then((terms) -> addContext(terms[1], context))
+    .then(expand)
+    .then((expanded) -> getKey(expanded[0]))
+    .then((expandedIRI) -> get(expandedIRI))
+    .then((group) ->
+      res.json 200, group)
   return
 
 app.put "/groups/:id", (req, res, next) ->
@@ -166,22 +179,6 @@ complexQuery = (res, queries, queryObj) ->
 
 
 
-searchLevelGraph = (res, queries) ->
-  db.search queries, (error, result) ->
-    if error?
-      res.json 304, {data: null, message: err}
-    if result.length is 0
-      res.json 200, {data: [], message: "not found"}
-    else
-      res.json 200, {data: result, message: 'ok'}
-    return
-
-get = (id, res, callback) ->
-  db.jsonld.get id, {'@context': context}, (error, result) ->
-    if error
-      callback(error, null, res)
-    else
-      callback(null, result, res)
 
 getMembers = (res, id, context) ->
   db.jsonld.get id, {'@context': context}, (err, obj) ->
@@ -203,15 +200,6 @@ deleteTestData = (res) ->
     res.json 200, {data:[], message: "data base deleted"}
 
 
-  # query =
-  #   subject: db.v("@id")
-  #   predicate: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-  #   object: "foaf:group"
-  # db.search [query], (error, result) ->
-  #   result.forEach (d,i) ->
-  #     db.jsonld.del d["@id"], (error) ->
-  #       if i is result.length-1
-  #         res.json 200, {data:[], message: "data base deleted"}
 
 
 

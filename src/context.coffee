@@ -15,7 +15,9 @@ module.exports =
   
   #properties
   description: "schema:description"
-  group: "foaf:group"
+  group: 
+    "@id": "foaf:group"
+    "defaultPrefix": "circles"
   image: "foaf:Image"
   name: "foaf:name"
   person: "foaf:Person"
@@ -36,6 +38,7 @@ module.exports =
   subgroups:
     "@id": "relations:subgroup"
     "@type": "group"
+
   supergroups:
     "@id": "relations:supergroup"
     "@type": "group"

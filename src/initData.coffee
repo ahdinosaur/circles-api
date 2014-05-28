@@ -31,6 +31,7 @@ data = [
     members: 
       "@id": "relations:members"
       "@type": "person"
+      "defaultPrefix": "people"
     subgroups:
       "@id": "relations:subgroup"
       "@type": "group"
