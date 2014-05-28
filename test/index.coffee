@@ -7,7 +7,9 @@ db = undefined
 # group = undefined 
 
 group =
-  id: "http://circles.enspiral.app/loomiocommunity"
+  id: "http://circles.app.enspiral.com/loomiocommunity"
+  prefixID: "circles:loomiocommunity"
+  shortID: "loomiocommunity"
   name: "Loomio Community"
 
 console.log 'encoded',urlencode(group.id)
@@ -44,40 +46,66 @@ describe "#groups", ->
 
 
   it "should GET /groups", (done) ->
-    #request(app)
     request
     .get("/groups")
     .expect("Content-Type", /json/)
     .expect(200)
     .expect((req) ->
       body = req.body
-      console.log 'test body', JSON.stringify(body)
-
       expect(body).to.have.length 1
       for prop of body[0]
         expect(body[0]).to.have.property prop, body[0][prop]
-      return
-    )
+      return)
     .end((err, res) ->
       return done(err)  if err
-      done()
-    )
+      done())
 
   it "should GET /groups/:id", (done) ->
-    request(app)
-    .get("/groups/" + urlencode(group.id))
+    request
+    .get("/groups/" + urlencode(group.id) ) #'loomiocommunity')
     .expect("Content-Type", /json/)
     .expect(200)
     .expect((req) ->
       body = req.body
-
-      expect(body).to.have.property "type", "foaf:group"
+      console.log 'GET groups/:id body', body
+      expect(body).to.have.property "@type", "foaf:group"
       for prop of body
         expect(body).to.have.property prop, body[prop]
-      return
-    )
+      return)
     .end((err, res) ->
       return done(err)  if err
-      done()
-    )
+      done())
+
+  it "should GET /groups/:prefix:id", (done) ->
+    request
+    .get("/groups/" + urlencode(group.prefixID) ) #'loomiocommunity')
+    .expect("Content-Type", /json/)
+    .expect(200)
+    .expect((req) ->
+      body = req.body
+      console.log 'GET groups/:id body', body
+      expect(body).to.have.property "@type", "foaf:group"
+      for prop of body
+        expect(body).to.have.property prop, body[prop]
+      return)
+    .end((err, res) ->
+      return done(err)  if err
+      done())
+
+  it "should GET /groups/:shortID", (done) ->
+    request
+    .get("/groups/" + urlencode(group.shortID) ) #'loomiocommunity')
+    .expect("Content-Type", /json/)
+    .expect(200)
+    .expect((req) ->
+      body = req.body
+      console.log 'GET groups/:id body', body
+      expect(body).to.have.property "@type", "foaf:group"
+      for prop of body
+        expect(body).to.have.property prop, body[prop]
+      return)
+    .end((err, res) ->
+      return done(err)  if err
+      done())
+
 

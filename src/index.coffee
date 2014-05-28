@@ -1,6 +1,6 @@
 express = require "express"
 levelgraph = require "levelgraph"
-
+urlencode = require "urlencode"
 validator = require "validator"
 Promise = require "bluebird"
 
@@ -25,11 +25,12 @@ addContext = (term, context, callback) ->
   doc = {}
   doc[term] = term
   doc['@context'] = context
-  console.log 'doc', doc
   callback(null, doc)
 
 addDefaultPrefix = (terms, context, callback) ->
+  console.log 'terms', terms
   if validator.isURL terms[1]
+    console.log 'isURL'
     callback null, terms
   else if terms[1].indexOf(':') is -1
     prefix = context[terms[0]]["defaultPrefix"]
@@ -53,9 +54,9 @@ expandQuery = (query, context, callback) ->
       callback(null, simpleQuery))
 
 extractPredicateAndObject = (terms, callback) ->
-  expanded = {}
-  exapnded.predicate = Object.keys(terms[0][0])[0]
-  expanded.object = Object.keys(expanded[1][0])[0]
+  expanded =
+    predicate: Object.keys(terms[0][0])[0]
+    object: Object.keys(terms[1][0])[0]
   callback(null, expanded)
 
 find = (query, callback) ->
@@ -133,7 +134,9 @@ app.post "/groups", (req, res, next) ->
   return
 
 app.get "/groups/:id", (req, res, next) ->
-  terms = ["group", req.params.id]
+  id = urlencode.decode(req.params.id)
+  console.log 'id', id
+  terms = ["group", id]
   addDefaultPrefix(terms, context)
     .then((terms) -> addContext(terms[1], context))
     .then(expand)

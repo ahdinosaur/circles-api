@@ -13,7 +13,9 @@
   db = void 0;
 
   group = {
-    id: "http://circles.enspiral.app/loomiocommunity",
+    id: "http://circles.app.enspiral.com/loomiocommunity",
+    prefixID: "circles:loomiocommunity",
+    shortID: "loomiocommunity",
     name: "Loomio Community"
   };
 
@@ -27,7 +29,6 @@
       return request.get("/groups").expect("Content-Type", /json/).expect(200).expect(function(req) {
         var body, prop;
         body = req.body;
-        console.log('test body', JSON.stringify(body));
         expect(body).to.have.length(1);
         for (prop in body[0]) {
           expect(body[0]).to.have.property(prop, body[0][prop]);
@@ -39,11 +40,44 @@
         return done();
       });
     });
-    return it("should GET /groups/:id", function(done) {
-      return request(app).get("/groups/" + urlencode(group.id)).expect("Content-Type", /json/).expect(200).expect(function(req) {
+    it("should GET /groups/:id", function(done) {
+      return request.get("/groups/" + urlencode(group.id)).expect("Content-Type", /json/).expect(200).expect(function(req) {
         var body, prop;
         body = req.body;
-        expect(body).to.have.property("type", "foaf:group");
+        console.log('GET groups/:id body', body);
+        expect(body).to.have.property("@type", "foaf:group");
+        for (prop in body) {
+          expect(body).to.have.property(prop, body[prop]);
+        }
+      }).end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+        return done();
+      });
+    });
+    it("should GET /groups/:prefix:id", function(done) {
+      return request.get("/groups/" + urlencode(group.prefixID)).expect("Content-Type", /json/).expect(200).expect(function(req) {
+        var body, prop;
+        body = req.body;
+        console.log('GET groups/:id body', body);
+        expect(body).to.have.property("@type", "foaf:group");
+        for (prop in body) {
+          expect(body).to.have.property(prop, body[prop]);
+        }
+      }).end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+        return done();
+      });
+    });
+    return it("should GET /groups/:shortID", function(done) {
+      return request.get("/groups/" + urlencode(group.shortID)).expect("Content-Type", /json/).expect(200).expect(function(req) {
+        var body, prop;
+        body = req.body;
+        console.log('GET groups/:id body', body);
+        expect(body).to.have.property("@type", "foaf:group");
         for (prop in body) {
           expect(body).to.have.property(prop, body[prop]);
         }
