@@ -32,9 +32,7 @@ addContext = (term, context, callback) ->
   callback(null, doc)
 
 addDefaultPrefix = (terms, context, callback) ->
-  console.log 'terms', terms
   if validator.isURL terms[1]
-    console.log 'isURL'
     callback null, terms
   else if terms[1].indexOf(':') is -1
     prefix = context[terms[0]]["defaultPrefix"]
@@ -94,7 +92,6 @@ get = (id, callback) ->
     else
       callback null, group
 
-#not used
 getKey = (obj, callback) ->
   key = Object.keys(obj)[0]
   callback(null, key)
@@ -159,7 +156,6 @@ app.post "/groups", (req, res, next) ->
 
 app.get "/groups/:id", (req, res, next) ->
   id = urlencode.decode req.params.id
-  console.log 'id', id
   terms = ["group", id]
   addDefaultPrefix(terms, context)
     .then((terms) -> addContext(terms[1], context))
@@ -170,14 +166,17 @@ app.get "/groups/:id", (req, res, next) ->
       res.json 200, group)
   return
 
+#TODO
 app.put "/groups/:id", (req, res, next) ->
-  id = req.params.id
+  id = urlencode.decode req.params.id
   body = req.params.body
   # use db.jsonld.put(body, function (err, obj) {})
   res.json 200,
     name: "PUT /groups/" + id
   return
 
+
+#TODO
 app.delete "/groups/:id", (req, res, next) ->
   id = req.params.id
 
@@ -187,7 +186,7 @@ app.delete "/groups/:id", (req, res, next) ->
   res.json 200,
     name: "DELETE /groups/" + id
 
-
+#TODO make better and more general
 app.get "/groups/:id/members", (req, res, next) ->
   id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
   getMembers(res, id, context)
