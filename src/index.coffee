@@ -43,24 +43,28 @@ addDefaultPrefix = (terms, context, callback) ->
 
 
 create = (data, params, callback) ->
-
-  console.log 'Creating da data', data
-
   # alias type to @type
   data = alias(data, "type", "@type")
   # ensure @type has "foaf:Person"
   data = hasType(data, "foaf:group")
   # alias id to @id
   data = alias(data, "id", "@id")
-
   db.jsonld.put data, (err, group) ->
     # if error, return error
     return callback(err) if err
-    
-    # return person
+    # return group
     compact(group, context, callback)
 
-expandQuery = (query, context, callback) ->
+expandGroupID = (id, context, callback) ->
+  terms = ["group", id]
+  addDefaultPrefix(terms, context)
+    .then((terms) -> addContext(terms[1], context))
+    .then(expand)
+    .then((expanded) -> getKey(expanded[0]))
+    .then((expandedIRI) -> 
+      callback null, expandedIRI)
+
+expandSimpleQuery = (query, context, callback) ->
   pair(query)
     .then((terms) -> addDefaultPrefix(terms, context))
     .map((term) -> addContext(term, context))
@@ -105,6 +109,25 @@ pair = (obj, callback) ->
   terms = [key, value]
   callback(null, terms)
 
+update = (id, data, params, callback) ->
+  # alias type to @type
+  data = alias(data, "type", "@type")
+  # ensure @type has "foaf:Person"
+  data = hasType(data, "foaf:group")
+  # alias id to @id
+  data = alias(data, "id", "@id")
+  # if id in route doesn't match id in data, return 400
+  if data["@id"] isnt id
+    err = new Error("id in route does not match id in data")
+    err.status = 400
+    return callback(err)
+  # put group in database
+  db.jsonld.put data, (err, group) ->
+    # if error, return error
+    return callback(err) if err
+    # return group
+    compact(group, context, callback)
+
 
 #promisfy methods
 addContext = Promise.promisify addContext
@@ -112,12 +135,14 @@ addDefaultPrefix = Promise.promisify addDefaultPrefix
 compact = Promise.promisify jsonldUtil.compact
 create = Promise.promisify create
 expand = Promise.promisify jsonldUtil.expand
-expandQuery = Promise.promisify expandQuery 
+expandGroupID = Promise.promisify expandGroupID
+expandSimpleQuery = Promise.promisify expandSimpleQuery 
 extractPredicateAndObject = Promise.promisify extractPredicateAndObject
 find = Promise.promisify find
 get = Promise.promisify get
 getKey = Promise.promisify getKey
 pair = Promise.promisify pair
+update = Promise.promisify update
 
 
 
@@ -143,7 +168,7 @@ app.get "/groups", (req, res, next) ->
     res.json 400, "GET /groups? only accepts 1 parameter key-value pair"
     return
   else
-    expandQuery(query, context)
+    expandSimpleQuery(query, context)
       .then(find)
       .then((groups) ->
         res.json 200, groups)
@@ -159,32 +184,20 @@ app.post "/groups", (req, res, next) ->
 
 app.get "/groups/:id", (req, res, next) ->
   id = urlencode.decode req.params.id
-  terms = ["group", id]
-  addDefaultPrefix(terms, context)
-    .then((terms) -> addContext(terms[1], context))
-    .then(expand)
-    .then((expanded) -> getKey(expanded[0]))
-    .then((expandedIRI) -> get(expandedIRI))
+  expandGroupID(id, context)
+    .then(get)
     .then((group) ->
       res.json 200, group)
   return
 
-#TODO
 app.put "/groups/:id", (req, res, next) ->
   id = urlencode.decode req.params.id
   body = req.body
-  create(body, null)
-    .then((obj) ->
-      res.json 200, obj)
-
-  terms = ["group", id]
-  addDefaultPrefix(terms, context)
-    .then((terms) -> addContext(terms[1], context))
-    .then(expand)
-    .then((expanded) -> getKey(expanded[0]))
-    .then((expandedIRI) -> get(expandedIRI))
+  expandGroupID(id, context)
+    .then((expandedIRI) -> update(expandedIRI, body, null))
     .then((group) ->
-      console.log 'putted group', group )
+      res.json 200, group)
+  return
 
 
 
@@ -201,18 +214,6 @@ app.delete "/groups/:id", (req, res, next) ->
 app.get "/groups/:id/members", (req, res, next) ->
   id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
   getMembers(res, id, context)
-
-
-
-
-
-
-
-
-
-
-
-complexQuery = (res, queries, queryObj) ->
 
 
 
