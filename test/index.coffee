@@ -110,6 +110,7 @@ describe "#groups", ->
     .expect((req) ->
       body = req.body
       console.log body
+      
       expect(body[0]).to.have.property "@type", "foaf:group"
       for prop of body
         expect(body).to.have.property prop, body[prop]
