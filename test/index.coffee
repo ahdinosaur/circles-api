@@ -90,7 +90,8 @@ describe "#groups", ->
     .send(bestGroup)
     .expect("Content-Type", /json/)
     .expect(201).expect((req) ->
-      ## why is it an array
+      body = req.body
+      ## why is it an array?
       expect(body[0]).to.have.property "@type", "foaf:group"
       for prop of body
         expect(body).to.have.property prop, body[prop]
@@ -98,5 +99,23 @@ describe "#groups", ->
     .end((err, res) ->
       return done(err) if err
       done())
+
+
+  it "should PUT /groups/:id", (done) ->
+    request
+    .put("/groups/" + urlencode(group.id) )
+    .send(group)
+    .expect("Content-Type", /json/)
+    .expect(200)
+    .expect((req) ->
+      body = req.body
+      console.log body
+      expect(body[0]).to.have.property "@type", "foaf:group"
+      for prop of body
+        expect(body).to.have.property prop, body[prop]
+      return)
+    .end((err, res) ->
+      return done(err)  if err
+      done())  
 
 

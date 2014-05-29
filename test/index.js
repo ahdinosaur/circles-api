@@ -87,11 +87,26 @@
         return done();
       });
     });
-    return it("should POST /groups", function(done) {
+    it("should POST /groups", function(done) {
       return request.post("/groups").send(bestGroup).expect("Content-Type", /json/).expect(201).expect(function(req) {
         var body, prop;
         body = req.body;
-        console.log('test req.body', body);
+        expect(body[0]).to.have.property("@type", "foaf:group");
+        for (prop in body) {
+          expect(body).to.have.property(prop, body[prop]);
+        }
+      }).end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+        return done();
+      });
+    });
+    return it("should PUT /groups/:id", function(done) {
+      return request.put("/groups/" + urlencode(group.id)).send(group).expect("Content-Type", /json/).expect(200).expect(function(req) {
+        var body, prop;
+        body = req.body;
+        console.log(body);
         expect(body[0]).to.have.property("@type", "foaf:group");
         for (prop in body) {
           expect(body).to.have.property(prop, body[prop]);

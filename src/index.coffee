@@ -43,6 +43,9 @@ addDefaultPrefix = (terms, context, callback) ->
 
 
 create = (data, params, callback) ->
+
+  console.log 'Creating da data', data
+
   # alias type to @type
   data = alias(data, "type", "@type")
   # ensure @type has "foaf:Person"
@@ -169,14 +172,22 @@ app.get "/groups/:id", (req, res, next) ->
 #TODO
 app.put "/groups/:id", (req, res, next) ->
   id = urlencode.decode req.params.id
-  body = req.params.body
-  # use db.jsonld.put(body, function (err, obj) {})
-  res.json 200,
-    name: "PUT /groups/" + id
-  return
+  body = req.body
+  create(body, null)
+    .then((obj) ->
+      res.json 200, obj)
+
+  terms = ["group", id]
+  addDefaultPrefix(terms, context)
+    .then((terms) -> addContext(terms[1], context))
+    .then(expand)
+    .then((expanded) -> getKey(expanded[0]))
+    .then((expandedIRI) -> get(expandedIRI))
+    .then((group) ->
+      console.log 'putted group', group )
 
 
-#TODO
+
 app.delete "/groups/:id", (req, res, next) ->
   id = req.params.id
 
