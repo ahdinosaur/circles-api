@@ -10,6 +10,8 @@ jsonldUtil = require("jsonld")
 
 
 _ = Promise.promisifyAll(require("lodash"))
+
+#https://github.com/open-app/people-api/tree/master/src/utils
 alias = require "./utils/alias"
 hasType = require "./utils/hasType"
 
