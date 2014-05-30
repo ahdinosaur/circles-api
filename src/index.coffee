@@ -207,7 +207,6 @@ app.put "/groups/:id", (req, res, next) ->
 
 app.delete "/groups/:id", (req, res, next) ->
   id = urlencode.decode req.params.id
-  console.log 'gonna delete it', id
   expandGroupID(id, context)
     .then((expandedIRI) -> remove(expandedIRI, null))
     .done(-> 

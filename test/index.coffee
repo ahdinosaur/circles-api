@@ -11,6 +11,17 @@ group =
   prefixID: "circles:loomiocommunity"
   shortID: "loomiocommunity"
   name: "Loomio Community"
+  members: [
+    {
+      "@id": "people:aaronthornton"
+      name: "Aaron Thornton"
+    },
+    {
+      "@id": "people:simontegg"
+      name: "Simon Tegg"
+    }
+  ]
+
 
 bestGroup =
   id: "http://circles.app.enspiral.com/bestgroup"
@@ -22,22 +33,7 @@ describe "#groups", ->
   before ->
     # db = require("level-test")()("testdb")
     # app = require('../lib/index.js')(db)
-
     return
-
-  it "should GET /groups", (done) ->
-    request
-    .get("/groups")
-    .expect("Content-Type", /json/)
-    .expect(200)
-    .expect((req) ->
-      body = req.body
-      for prop of body[0]
-        expect(body[0]).to.have.property prop, body[0][prop]
-      return)
-    .end((err, res) ->
-      return done(err)  if err
-      done())
 
   it "should POST /groups", (done) ->
     request
@@ -55,6 +51,19 @@ describe "#groups", ->
       return done(err) if err
       done())
 
+  it "should GET /groups", (done) ->
+    request
+    .get("/groups")
+    .expect("Content-Type", /json/)
+    .expect(200)
+    .expect((req) ->
+      body = req.body
+      for prop of body[0]
+        expect(body[0]).to.have.property prop, body[0][prop]
+      return)
+    .end((err, res) ->
+      return done(err)  if err
+      done())
 
   it "should GET /groups/:id", (done) ->
     request

@@ -16,7 +16,16 @@
     id: "http://circles.app.enspiral.com/loomiocommunity",
     prefixID: "circles:loomiocommunity",
     shortID: "loomiocommunity",
-    name: "Loomio Community"
+    name: "Loomio Community",
+    members: [
+      {
+        "@id": "people:aaronthornton",
+        name: "Aaron Thornton"
+      }, {
+        "@id": "people:simontegg",
+        name: "Simon Tegg"
+      }
+    ]
   };
 
   bestGroup = {
@@ -28,12 +37,13 @@
 
   describe("#groups", function() {
     before(function() {});
-    it("should GET /groups", function(done) {
-      return request.get("/groups").expect("Content-Type", /json/).expect(200).expect(function(req) {
+    it("should POST /groups", function(done) {
+      return request.post("/groups").send(group).expect("Content-Type", /json/).expect(201).expect(function(req) {
         var body, prop;
         body = req.body;
-        for (prop in body[0]) {
-          expect(body[0]).to.have.property(prop, body[0][prop]);
+        expect(body[0]).to.have.property("@type", "foaf:group");
+        for (prop in body) {
+          expect(body).to.have.property(prop, body[prop]);
         }
       }).end(function(err, res) {
         if (err) {
@@ -42,13 +52,12 @@
         return done();
       });
     });
-    it("should POST /groups", function(done) {
-      return request.post("/groups").send(group).expect("Content-Type", /json/).expect(201).expect(function(req) {
+    it("should GET /groups", function(done) {
+      return request.get("/groups").expect("Content-Type", /json/).expect(200).expect(function(req) {
         var body, prop;
         body = req.body;
-        expect(body[0]).to.have.property("@type", "foaf:group");
-        for (prop in body) {
-          expect(body).to.have.property(prop, body[prop]);
+        for (prop in body[0]) {
+          expect(body[0]).to.have.property(prop, body[0][prop]);
         }
       }).end(function(err, res) {
         if (err) {
