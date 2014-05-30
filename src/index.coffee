@@ -212,10 +212,23 @@ app.delete "/groups/:id", (req, res, next) ->
     .done(-> 
       res.json 204, null)
 
-#TODO make better and more general
-app.get "/groups/:id/members", (req, res, next) ->
-  id = if validator.isURL(id) then req.params.id else "http://circles.app.enspiral.com/" + req.params.id 
-  getMembers(res, id, context)
+
+
+#TODO doesnt work yet
+app.get "/groups/:id/:subResource", (req, res, next) ->
+  id = urlencode.decode req.params.id
+  subResource = req.params.subResource
+  expandGroupID(id, context)
+    .then(get)
+    .then((group) ->
+      if not group?
+        res.json 404, null
+      else
+        console.log group, 'get id subResource'
+
+        res.json 200, group[subResource])
+
+
 
 
 

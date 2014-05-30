@@ -127,6 +127,19 @@
         return done();
       });
     });
+    it("should GET /groups/:id/members", function(done) {
+      return request.get("/groups/" + urlencode(group.id) + "/members").expect("Content-Type", /json/).expect(200).expect(function(req) {
+        var body;
+        body = req.body;
+        console.log(body, 'members');
+        expect(body).to.contain.keys('@id', "name");
+      }).end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+        return done();
+      });
+    });
     it("should DELETE /groups/:id", function(done) {
       return request.del("/groups/" + urlencode(group.id)).expect(204).end(function(err, res) {
         if (err) {

@@ -97,7 +97,7 @@ describe "#groups", ->
 
   it "should GET /groups/:shortID", (done) ->
     request
-    .get("/groups/" + urlencode(group.shortID) ) #'loomiocommunity')
+    .get("/groups/" + urlencode(group.shortID) )
     .expect("Content-Type", /json/)
     .expect(200)
     .expect((req) ->
@@ -112,7 +112,7 @@ describe "#groups", ->
 
   it "should PUT /groups/:id", (done) ->
     request
-    .put("/groups/" + urlencode(group.id) )
+    .put("/groups/" + urlencode(group.id))
     .send(group)
     .expect("Content-Type", /json/)
     .expect(200)
@@ -127,6 +127,22 @@ describe "#groups", ->
     .end((err, res) ->
       return done(err)  if err
       done())  
+
+  #TODO
+  it "should GET /groups/:id/members", (done) ->
+    request
+    .get("/groups/" + urlencode(group.id) + "/members")
+    .expect("Content-Type", /json/)
+    .expect(200)
+    .expect((req) ->
+      body = req.body
+      console.log body, 'members'
+      expect(body).to.contain.keys '@id', "name"
+      return)
+    .end((err, res) ->
+      return done(err)  if err
+      done())
+
 
   it "should DELETE /groups/:id", (done) ->
     request
