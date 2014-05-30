@@ -27,12 +27,11 @@ bestGroup =
   id: "http://circles.app.enspiral.com/bestgroup"
   name: "Best Group"
 
-request = request('http://localhost:5000')
-
 describe "#groups", ->
   before ->
-    # db = require("level-test")()("testdb")
-    # app = require('../lib/index.js')(db)
+    db = require("level-test")()("testdb")
+    app = require('../')(db)
+    request = request(app)
     return
 
   it "should POST /groups", (done) ->

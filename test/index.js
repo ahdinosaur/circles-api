@@ -33,10 +33,12 @@
     name: "Best Group"
   };
 
-  request = request('http://localhost:5000');
-
   describe("#groups", function() {
-    before(function() {});
+    before(function() {
+      db = require("level-test")()("testdb");
+      app = require('../')(db);
+      request = request(app);
+    });
     it("should POST /groups", function(done) {
       return request.post("/groups").send(group).expect("Content-Type", /json/).expect(201).expect(function(req) {
         var body, prop;
