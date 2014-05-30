@@ -39,6 +39,23 @@ describe "#groups", ->
       return done(err)  if err
       done())
 
+  it "should POST /groups", (done) ->
+    request
+    .post("/groups")
+    .send(group)
+    .expect("Content-Type", /json/)
+    .expect(201).expect((req) ->
+      body = req.body
+      ## why is it an array?
+      expect(body[0]).to.have.property "@type", "foaf:group"
+      for prop of body
+        expect(body).to.have.property prop, body[prop]
+      return)
+    .end((err, res) ->
+      return done(err) if err
+      done())
+
+
   it "should GET /groups/:id", (done) ->
     request
     .get("/groups/" + urlencode(group.id) ) #'loomiocommunity')
@@ -84,23 +101,6 @@ describe "#groups", ->
       return done(err)  if err
       done())
 
-  it "should POST /groups", (done) ->
-    request
-    .post("/groups")
-    .send(bestGroup)
-    .expect("Content-Type", /json/)
-    .expect(201).expect((req) ->
-      body = req.body
-      ## why is it an array?
-      expect(body[0]).to.have.property "@type", "foaf:group"
-      for prop of body
-        expect(body).to.have.property prop, body[prop]
-      return)
-    .end((err, res) ->
-      return done(err) if err
-      done())
-
-
   it "should PUT /groups/:id", (done) ->
     request
     .put("/groups/" + urlencode(group.id) )
@@ -119,7 +119,26 @@ describe "#groups", ->
       return done(err)  if err
       done())  
 
+  it "should DELETE /groups/:id", (done) ->
+    request
+    .del("/groups/" + urlencode(group.id))
+    .expect(204)
+    .end((err, res) ->
+      return done(err) if err
+      done()
+    )
 
-  
+  it "should not GET deleted id", (done) ->
+    request
+    .get("/groups/" + urlencode(group.id))
+    .expect("Content-Type", /json/)
+    .expect(404)
+    .end((err, res) ->
+      return done(err)  if err
+      done()
+    )
+
+
+
 
 

@@ -42,6 +42,21 @@
         return done();
       });
     });
+    it("should POST /groups", function(done) {
+      return request.post("/groups").send(group).expect("Content-Type", /json/).expect(201).expect(function(req) {
+        var body, prop;
+        body = req.body;
+        expect(body[0]).to.have.property("@type", "foaf:group");
+        for (prop in body) {
+          expect(body).to.have.property(prop, body[prop]);
+        }
+      }).end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+        return done();
+      });
+    });
     it("should GET /groups/:id", function(done) {
       return request.get("/groups/" + urlencode(group.id)).expect("Content-Type", /json/).expect(200).expect(function(req) {
         var body, prop;
@@ -87,10 +102,11 @@
         return done();
       });
     });
-    it("should POST /groups", function(done) {
-      return request.post("/groups").send(bestGroup).expect("Content-Type", /json/).expect(201).expect(function(req) {
+    it("should PUT /groups/:id", function(done) {
+      return request.put("/groups/" + urlencode(group.id)).send(group).expect("Content-Type", /json/).expect(200).expect(function(req) {
         var body, prop;
         body = req.body;
+        console.log(body);
         expect(body[0]).to.have.property("@type", "foaf:group");
         for (prop in body) {
           expect(body).to.have.property(prop, body[prop]);
@@ -102,16 +118,16 @@
         return done();
       });
     });
-    return it("should PUT /groups/:id", function(done) {
-      return request.put("/groups/" + urlencode(group.id)).send(group).expect("Content-Type", /json/).expect(200).expect(function(req) {
-        var body, prop;
-        body = req.body;
-        console.log(body);
-        expect(body[0]).to.have.property("@type", "foaf:group");
-        for (prop in body) {
-          expect(body).to.have.property(prop, body[prop]);
+    it("should DELETE /groups/:id", function(done) {
+      return request.del("/groups/" + urlencode(group.id)).expect(204).end(function(err, res) {
+        if (err) {
+          return done(err);
         }
-      }).end(function(err, res) {
+        return done();
+      });
+    });
+    return it("should not GET deleted id", function(done) {
+      return request.get("/groups/" + urlencode(group.id)).expect("Content-Type", /json/).expect(404).end(function(err, res) {
         if (err) {
           return done(err);
         }

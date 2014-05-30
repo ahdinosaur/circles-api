@@ -49,9 +49,9 @@ create = (data, params, callback) ->
   data = hasType(data, "foaf:group")
   # alias id to @id
   data = alias(data, "id", "@id")
-  db.jsonld.put data, (err, group) ->
+  db.jsonld.put data, (error, group) ->
     # if error, return error
-    return callback(err) if err
+    return callback(err) if error
     # return group
     compact(group, context, callback)
 
@@ -94,6 +94,7 @@ find = (query, callback) ->
 
 get = (id, callback) ->
   db.jsonld.get id, {'@context': context}, (error, group) ->
+    console.log error, group
     if error
       callback error
     else
@@ -101,13 +102,13 @@ get = (id, callback) ->
 
 getKey = (obj, callback) ->
   key = Object.keys(obj)[0]
-  callback(null, key)
+  callback null, key
 
 pair = (obj, callback) ->
   key = Object.keys(obj)[0]
   value = obj[key]
   terms = [key, value]
-  callback(null, terms)
+  callback null, terms
 
 update = (id, data, params, callback) ->
   # alias type to @type
@@ -118,15 +119,20 @@ update = (id, data, params, callback) ->
   data = alias(data, "id", "@id")
   # if id in route doesn't match id in data, return 400
   if data["@id"] isnt id
-    err = new Error("id in route does not match id in data")
+    error = new Error("id in route does not match id in data")
     err.status = 400
     return callback(err)
   # put group in database
-  db.jsonld.put data, (err, group) ->
+  db.jsonld.put data, (error, group) ->
     # if error, return error
-    return callback(err) if err
+    return callback(err) if error
     # return group
     compact(group, context, callback)
+
+remove = (id, params, callback) ->
+  db.jsonld.del id, (error) ->
+    return callback error if error
+    callback null
 
 
 #promisfy methods
@@ -143,14 +149,9 @@ get = Promise.promisify get
 getKey = Promise.promisify getKey
 pair = Promise.promisify pair
 update = Promise.promisify update
-
-
+remove = Promise.promisify remove
 
 #routes
-app.get "/", (req, res, next) ->
-  addTestData(res)
-  #deleteTestData(res)
-
 app.get "/groups", (req, res, next) ->
   query = req.query
   keys = Object.keys(query)
@@ -187,7 +188,10 @@ app.get "/groups/:id", (req, res, next) ->
   expandGroupID(id, context)
     .then(get)
     .then((group) ->
-      res.json 200, group)
+      if not group?
+        res.json 404, null
+      else
+        res.json 200, group)
   return
 
 app.put "/groups/:id", (req, res, next) ->
@@ -199,16 +203,13 @@ app.put "/groups/:id", (req, res, next) ->
       res.json 200, group)
   return
 
-
-
 app.delete "/groups/:id", (req, res, next) ->
-  id = req.params.id
-
-  db.jsonld.del id, (error) ->
-    console.log 'deleted ' + id
-
-  res.json 200,
-    name: "DELETE /groups/" + id
+  id = urlencode.decode req.params.id
+  console.log 'gonna delete it', id
+  expandGroupID(id, context)
+    .then((expandedIRI) -> remove(expandedIRI, null))
+    .done(-> 
+      res.json 204, null)
 
 #TODO make better and more general
 app.get "/groups/:id/members", (req, res, next) ->
@@ -218,25 +219,12 @@ app.get "/groups/:id/members", (req, res, next) ->
 
 
 
+
 getMembers = (res, id, context) ->
   db.jsonld.get id, {'@context': context}, (err, obj) ->
     res.json 200,
       data: obj['relations:members']
       message: 'ok'   
-
-addTestData = (res) ->
-  initData.forEach (d,i) ->
-    db.jsonld.put d, (err, obj) ->
-      if i is initData.length-1
-        res.json 200,
-          data: initData
-          message: 'test data added'
-
-deleteTestData = (res) ->
-
-  db.jsonld.del "http://circles.app.enspiral.com/loomiocommunity", (error) ->
-    res.json 200, {data:[], message: "data base deleted"}
-
 
 
 
