@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/open-app/circles-prototype.png?label=ready&title=Ready)](https://waffle.io/open-app/circles-prototype)
 # Circles (prototype)
 
 A prototype of the circles open-app.
