@@ -3,4 +3,7 @@ node_js:
   - "0.10"
 notifications:
   email: false
+  hipchat:
+    rooms:
+      - c3cd84268ec577e157c2941a34a4e1@Enspiral App
 cache: npm
