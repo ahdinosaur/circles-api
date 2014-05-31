@@ -6,4 +6,6 @@ notifications:
   hipchat:
     rooms:
       - c3cd84268ec577e157c2941a34a4e1@Enspiral App
+    template: '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message} (<a href="%{build_url}">Details</a>/<a href="%{compare_url}">Change view</a>)'
+    format: html
 cache: npm
